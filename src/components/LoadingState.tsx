@@ -5,7 +5,7 @@ const messages = [
   'Breaking it into sections...',
   'Writing explanations...',
   'Generating diagrams...',
-  'Structuring the video...',
+  'Creating voiceover...',
   'Almost there...',
 ]
 

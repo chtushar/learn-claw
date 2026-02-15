@@ -5,14 +5,14 @@ import { VideoPlayer } from '@/components/VideoPlayer'
 import { LoadingState } from '@/components/LoadingState'
 import { ErrorState } from '@/components/ErrorState'
 import { generateVideo } from '@/server/generate'
-import type { VideoData } from '@/lib/schema'
+import type { GenerateResponse } from '@/lib/schema'
 
 export const Route = createFileRoute('/')({ component: HomePage })
 
 type State =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'success'; data: VideoData }
+  | { status: 'success'; data: GenerateResponse }
   | { status: 'error'; message: string }
 
 function HomePage() {

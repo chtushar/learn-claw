@@ -1,23 +1,39 @@
-import type { VideoData } from '@/lib/schema'
+import type { AudioInfo } from '@/lib/processedSchema'
 import {
+  VIDEO_FPS,
   TITLE_SCENE_DURATION_FRAMES,
   SECTION_BASE_DURATION_FRAMES,
   SUMMARY_SCENE_DURATION_FRAMES,
   TRANSITION_DURATION_FRAMES,
+  AUDIO_BUFFER_FRAMES,
   DIAGRAM_DURATION_MULTIPLIER,
 } from './constants'
 
-export function calculateTotalFrames(data: VideoData): number {
-  const sectionFrames = data.sections.reduce((total, section) => {
-    const multiplier =
-      section.sceneType === 'diagram' ? DIAGRAM_DURATION_MULTIPLIER : 1
+export function getSectionDurationFrames(
+  audioInfo: AudioInfo | undefined,
+  durationWeight: number,
+  sceneType: string,
+): number {
+  if (audioInfo) {
     return (
-      total +
-      Math.round(SECTION_BASE_DURATION_FRAMES * section.durationWeight * multiplier)
+      Math.ceil(audioInfo.durationInSeconds * VIDEO_FPS) + AUDIO_BUFFER_FRAMES
     )
+  }
+  // Fallback: weight-based duration
+  const multiplier = sceneType === 'diagram' ? DIAGRAM_DURATION_MULTIPLIER : 1
+  return Math.round(SECTION_BASE_DURATION_FRAMES * durationWeight * multiplier)
+}
+
+export function calculateTotalFrames(
+  sectionCount: number,
+  audioSegments: AudioInfo[],
+  sections: { durationWeight: number; sceneType: string }[],
+): number {
+  const sectionFrames = sections.reduce((total, section, i) => {
+    return total + getSectionDurationFrames(audioSegments[i], section.durationWeight, section.sceneType)
   }, 0)
 
-  const transitionCount = data.sections.length + 1
+  const transitionCount = sectionCount + 1
   const transitionFrames = transitionCount * TRANSITION_DURATION_FRAMES
 
   return (

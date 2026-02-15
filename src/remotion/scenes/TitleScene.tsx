@@ -27,6 +27,7 @@ export const TitleScene: React.FC<{
         background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%)',
         justifyContent: 'center',
         alignItems: 'center',
+        padding: 48,
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
@@ -34,11 +35,12 @@ export const TitleScene: React.FC<{
         style={{
           opacity: titleOpacity,
           transform: `translateY(${interpolate(titleY, [0, 1], [40, 0])}px)`,
-          fontSize: 72,
+          fontSize: 48,
           fontWeight: 800,
           color: '#ffffff',
           textAlign: 'center',
-          maxWidth: '80%',
+          maxWidth: '90%',
+          lineHeight: 1.2,
         }}
       >
         {topic}
@@ -46,9 +48,9 @@ export const TitleScene: React.FC<{
       <div
         style={{
           opacity: subtitleOpacity,
-          fontSize: 28,
+          fontSize: 22,
           color: '#8b8ba7',
-          marginTop: 24,
+          marginTop: 20,
         }}
       >
         {sectionCount} sections

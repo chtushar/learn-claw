@@ -24,6 +24,19 @@ export const VideoDataSchema = z.object({
   sections: z.array(SectionSchema),
 })
 
+export const AudioSegmentSchema = z.object({
+  sectionIndex: z.number(),
+  base64Audio: z.string(),
+  durationMs: z.number(),
+})
+
+export const GenerateResponseSchema = z.object({
+  videoData: VideoDataSchema,
+  audioSegments: z.array(AudioSegmentSchema),
+})
+
 export type Diagram = z.infer<typeof DiagramSchema>
 export type Section = z.infer<typeof SectionSchema>
 export type VideoData = z.infer<typeof VideoDataSchema>
+export type AudioSegment = z.infer<typeof AudioSegmentSchema>
+export type GenerateResponse = z.infer<typeof GenerateResponseSchema>

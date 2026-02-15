@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import type { VideoData } from './schema'
+import type { GenerateResponse } from './schema'
 import type { ProcessedVideoData, ProcessedSection } from './processedSchema'
 
-export function useMermaidRenderer(data: VideoData | null): {
+export function useMermaidRenderer(response: GenerateResponse | null): {
   processed: ProcessedVideoData | null
   isRendering: boolean
   error: string | null
@@ -12,8 +12,9 @@ export function useMermaidRenderer(data: VideoData | null): {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!data) return
+    if (!response) return
 
+    const data = response.videoData
     let cancelled = false
 
     async function renderAll() {
@@ -82,6 +83,7 @@ export function useMermaidRenderer(data: VideoData | null): {
             summary: data!.summary,
             totalDurationEstimate: data!.totalDurationEstimate,
             sections: processedSections,
+            audioSegments: [], // Will be populated by useAudioProcessor
           })
         }
       } catch (err) {
@@ -101,7 +103,7 @@ export function useMermaidRenderer(data: VideoData | null): {
     return () => {
       cancelled = true
     }
-  }, [data])
+  }, [response])
 
   return { processed, isRendering, error }
 }

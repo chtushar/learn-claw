@@ -1,4 +1,4 @@
-import { AbsoluteFill } from 'remotion'
+import { AbsoluteFill, Audio } from 'remotion'
 import { AnimatedText } from '../components/AnimatedText'
 import { ProgressiveRevealDiagram } from '../components/ProgressiveRevealDiagram'
 import { ProgressBar } from '../components/ProgressBar'
@@ -8,28 +8,31 @@ export const DiagramScene: React.FC<{
   section: ProcessedSection
   index: number
   total: number
-}> = ({ section, index, total }) => {
+  audioSrc?: string
+}> = ({ section, index, total, audioSrc }) => {
   return (
     <AbsoluteFill
       style={{
         background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%)',
-        padding: 60,
+        padding: 48,
         fontFamily: 'Inter, system-ui, sans-serif',
         display: 'flex',
         flexDirection: 'column',
       }}
     >
+      {audioSrc && <Audio src={audioSrc} />}
+
       <ProgressBar current={index + 1} total={total} />
 
       <AnimatedText
         text={`${section.iconEmoji}  ${section.title}`}
         delay={0}
         style={{
-          fontSize: 36,
+          fontSize: 30,
           color: '#ffffff',
           fontWeight: 700,
-          marginTop: 24,
-          marginBottom: 24,
+          marginTop: 20,
+          marginBottom: 20,
           textAlign: 'center',
         }}
       />
@@ -47,8 +50,8 @@ export const DiagramScene: React.FC<{
             svgString={section.processedDiagram.svgString}
             startDelay={15}
             frameBetweenElements={6}
-            maxWidth={1600}
-            maxHeight={750}
+            maxWidth={960}
+            maxHeight={800}
           />
         )}
       </div>
@@ -58,7 +61,7 @@ export const DiagramScene: React.FC<{
           text={section.processedDiagram.caption}
           delay={60}
           style={{
-            fontSize: 18,
+            fontSize: 16,
             color: '#8b8ba7',
             textAlign: 'center',
             fontStyle: 'italic',

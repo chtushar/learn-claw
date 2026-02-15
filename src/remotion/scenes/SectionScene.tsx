@@ -1,4 +1,4 @@
-import { AbsoluteFill } from 'remotion'
+import { AbsoluteFill, Audio } from 'remotion'
 import { AnimatedText } from '../components/AnimatedText'
 import { BulletList } from '../components/BulletList'
 import { MarkdownText } from '../components/MarkdownText'
@@ -9,25 +9,28 @@ export const SectionScene: React.FC<{
   section: ProcessedSection
   index: number
   total: number
-}> = ({ section, index, total }) => {
+  audioSrc?: string
+}> = ({ section, index, total, audioSrc }) => {
   return (
     <AbsoluteFill
       style={{
         background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%)',
-        padding: 80,
+        padding: 48,
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
+      {audioSrc && <Audio src={audioSrc} />}
+
       <ProgressBar current={index + 1} total={total} />
 
       <AnimatedText
         text={`${section.iconEmoji}  Section ${index + 1}`}
         delay={0}
         style={{
-          fontSize: 24,
+          fontSize: 20,
           color: '#6c63ff',
           fontWeight: 600,
-          marginTop: 40,
+          marginTop: 32,
         }}
       />
 
@@ -35,10 +38,11 @@ export const SectionScene: React.FC<{
         text={section.title}
         delay={10}
         style={{
-          fontSize: 52,
+          fontSize: 36,
           color: '#ffffff',
           fontWeight: 800,
-          marginTop: 16,
+          marginTop: 12,
+          lineHeight: 1.2,
         }}
       />
 
@@ -48,13 +52,13 @@ export const SectionScene: React.FC<{
         text={section.narration}
         delay={50}
         style={{
-          fontSize: 22,
+          fontSize: 20,
           color: '#a0a0c0',
           lineHeight: 1.6,
           position: 'absolute',
-          bottom: 80,
-          left: 80,
-          right: 80,
+          bottom: 48,
+          left: 48,
+          right: 48,
         }}
       />
     </AbsoluteFill>

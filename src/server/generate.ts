@@ -2,56 +2,56 @@ import { createServerFn } from '@tanstack/react-start'
 import Anthropic from '@anthropic-ai/sdk'
 import { z } from 'zod'
 import { VideoDataSchema } from '@/lib/schema'
+import { synthesizeSpeech } from './elevenlabs'
+import type { GenerateResponse } from '@/lib/schema'
 
-const SYSTEM_PROMPT = `You are an educational content designer. Your job is to take a topic and produce structured content for an animated explainer video.
+const SYSTEM_PROMPT = `You are an educational content designer creating short-form vertical video content (TikTok/Reels style).
 
 Rules:
-- Break the topic into 4-6 logical sections that build on each other.
-- Each section should have a clear title, 3-5 concise key points (max 12 words each), a narration paragraph (2-3 sentences, conversational tone, as if explaining to a curious friend), a visual description, and an emoji icon.
-- Assign a durationWeight to each section: 1 for brief, 2 for standard, 3 for complex sections.
-- The first section should be an introduction/overview.
-- The last section should be a summary/recap.
+- Break the topic into 3-4 concise sections that build on each other.
+- Each section should have a clear title, 2-3 punchy key points (max 8 words each), a narration of 1-2 sentences (conversational, as if explaining to a friend), a visual description, and an emoji icon.
+- Assign a durationWeight to each section: 1 for brief, 2 for standard.
+- The first section should be a hook/introduction.
+- The last section should be a quick takeaway/recap.
 - Write the summary field as a one-sentence elevator pitch.
-- Keep language accessible -- assume the viewer is an intelligent beginner.
-- totalDurationEstimate: suggested video length in seconds (60-120).
+- Keep language accessible and energetic -- this is short-form content.
+- totalDurationEstimate: 30-60 seconds.
 
 NARRATION FORMATTING:
-- You may use **bold** for key terms and \`backticks\` for code/technical terms in narration text.
-- Keep formatting minimal -- this renders in a video, not a document.
+- You may use **bold** for key terms and \`backticks\` for code/technical terms.
+- Keep it minimal -- this is narrated aloud in a video.
 
 DIAGRAMS:
-- For 2-3 sections (not all), include a Mermaid diagram that visualizes the concept.
-- Use sceneType "diagram" for sections where the visual is the main content (full-width diagram with title only).
-- Use sceneType "split" for sections that benefit from both text bullets AND a diagram side by side.
-- Use sceneType "text" for sections that are best explained with just text and bullet points.
-- The first (intro) and last (recap) sections should typically be sceneType "text".
+- For 1-2 sections (not all), include a Mermaid diagram.
+- Use sceneType "diagram" for visual-heavy content (full-width diagram with title only).
+- Use sceneType "split" for sections that benefit from both text AND a diagram.
+- Use sceneType "text" for sections best explained with just bullet points.
 - Diagram types: "flowchart" for processes, "sequence" for interactions, "graph" for relationships, "mindmap" for concept maps.
 - Keep Mermaid syntax simple and correct. Use short node labels (max 4 words per node).
-- Do NOT use special characters, parentheses, or HTML in Mermaid node labels. Use square brackets for node labels like A[Label Here].
+- Do NOT use special characters, parentheses, or HTML in Mermaid node labels.
 - Always use graph TD or graph LR direction syntax for flowcharts.
-- For sequence diagrams, keep to 3-5 participants maximum.
-- Include a brief caption describing what the diagram shows.`
+- For sequence diagrams, keep to 3-4 participants maximum.`
 
 export const generateVideo = createServerFn({ method: 'POST' })
   .inputValidator(z.object({ topic: z.string().min(1).max(200) }))
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<GenerateResponse> => {
     const client = new Anthropic()
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 8192,
+      max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [
         {
           role: 'user',
-          content: `Create an explainer video about: ${data.topic}`,
+          content: `Create a short explainer video about: ${data.topic}`,
         },
       ],
       tools: [
         {
           name: 'generate_video_data',
           description:
-            'Generate structured video data for an educational explainer video with diagrams',
+            'Generate structured video data for a short-form educational explainer video',
           input_schema: {
             type: 'object' as const,
             properties: {
@@ -62,7 +62,7 @@ export const generateVideo = createServerFn({ method: 'POST' })
               },
               totalDurationEstimate: {
                 type: 'number',
-                description: 'Suggested video length in seconds',
+                description: 'Suggested video length in seconds (30-60)',
               },
               sections: {
                 type: 'array',
@@ -82,7 +82,7 @@ export const generateVideo = createServerFn({ method: 'POST' })
                       type: 'string',
                       enum: ['text', 'diagram', 'split'],
                       description:
-                        'Layout: text for bullets only, diagram for full-width diagram, split for side-by-side text and diagram',
+                        'Layout: text for bullets only, diagram for full-width diagram, split for stacked text and diagram',
                     },
                     diagram: {
                       type: 'object',
@@ -92,17 +92,15 @@ export const generateVideo = createServerFn({ method: 'POST' })
                         type: {
                           type: 'string',
                           enum: ['flowchart', 'sequence', 'mindmap', 'graph'],
-                          description: 'The type of diagram',
                         },
                         mermaidCode: {
                           type: 'string',
                           description:
-                            'Valid Mermaid diagram code. Use simple syntax, short labels, no HTML, no special characters in labels.',
+                            'Valid Mermaid diagram code. Use simple syntax, short labels, no HTML.',
                         },
                         caption: {
                           type: 'string',
-                          description:
-                            'Brief description of what the diagram shows',
+                          description: 'Brief caption for the diagram',
                         },
                       },
                       required: ['type', 'mermaidCode'],
@@ -139,6 +137,17 @@ export const generateVideo = createServerFn({ method: 'POST' })
       throw new Error('Unexpected response format from Claude')
     }
 
-    const parsed = VideoDataSchema.parse(toolUseBlock.input)
-    return parsed
+    const videoData = VideoDataSchema.parse(toolUseBlock.input)
+
+    // Generate TTS audio for each section in parallel
+    const audioSegments = await Promise.all(
+      videoData.sections.map(async (section, index) => {
+        const { base64Audio, durationMs } = await synthesizeSpeech(
+          section.narration,
+        )
+        return { sectionIndex: index, base64Audio, durationMs }
+      }),
+    )
+
+    return { videoData, audioSegments }
   })
