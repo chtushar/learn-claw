@@ -2,13 +2,13 @@ import { Player } from '@remotion/player'
 import { VideoComposition } from '@/remotion/VideoComposition'
 import { calculateTotalFrames } from '@/remotion/lib/calculations'
 import { VIDEO_FPS, VIDEO_WIDTH, VIDEO_HEIGHT } from '@/remotion/lib/constants'
-import { useMermaidRenderer } from '@/lib/useMermaidRenderer'
+import { useVisualProcessor } from '@/lib/useVisualProcessor'
 import { useAudioProcessor } from '@/lib/useAudioProcessor'
 import type { GenerateResponse } from '@/lib/schema'
 import { useMemo } from 'react'
 
 export const VideoPlayer: React.FC<{ data: GenerateResponse }> = ({ data }) => {
-  const { processed, isRendering, error: mermaidError } = useMermaidRenderer(data)
+  const { processed, isRendering, error: renderError } = useVisualProcessor(data)
   const {
     audioInfos,
     isProcessing: isProcessingAudio,
@@ -16,7 +16,7 @@ export const VideoPlayer: React.FC<{ data: GenerateResponse }> = ({ data }) => {
   } = useAudioProcessor(data.audioSegments)
 
   const isLoading = isRendering || isProcessingAudio
-  const error = mermaidError || audioError
+  const error = renderError || audioError
 
   // Merge audio into processed data
   const finalData = useMemo(() => {
@@ -41,7 +41,7 @@ export const VideoPlayer: React.FC<{ data: GenerateResponse }> = ({ data }) => {
       <div className="w-full max-w-md mx-auto flex items-center justify-center py-12">
         <div className="flex items-center gap-3 text-[#636363]">
           <div className="w-5 h-5 border-2 border-[#2c80ff] border-t-transparent rounded-full animate-spin" />
-          {isRendering ? 'Rendering diagrams...' : 'Processing audio...'}
+          {isRendering ? 'Rendering visuals...' : 'Processing audio...'}
         </div>
       </div>
     )

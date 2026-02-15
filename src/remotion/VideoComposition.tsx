@@ -5,6 +5,9 @@ import { slide } from '@remotion/transitions/slide'
 import { TitleScene } from './scenes/TitleScene'
 import { SectionScene } from './scenes/SectionScene'
 import { DiagramScene } from './scenes/DiagramScene'
+import { CodeScene } from './scenes/CodeScene'
+import { MathScene } from './scenes/MathScene'
+import { ChartScene } from './scenes/ChartScene'
 import { SplitScene } from './scenes/SplitScene'
 import { SummaryScene } from './scenes/SummaryScene'
 import { getSectionDurationFrames } from './lib/calculations'
@@ -28,6 +31,33 @@ function renderSectionScene(
     case 'diagram':
       return (
         <DiagramScene
+          section={section}
+          index={index}
+          total={total}
+          audioSrc={audioSrc}
+        />
+      )
+    case 'code':
+      return (
+        <CodeScene
+          section={section}
+          index={index}
+          total={total}
+          audioSrc={audioSrc}
+        />
+      )
+    case 'math':
+      return (
+        <MathScene
+          section={section}
+          index={index}
+          total={total}
+          audioSrc={audioSrc}
+        />
+      )
+    case 'chart':
+      return (
+        <ChartScene
           section={section}
           index={index}
           total={total}

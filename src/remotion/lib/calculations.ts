@@ -20,7 +20,10 @@ export function getSectionDurationFrames(
     )
   }
   // Fallback: weight-based duration
-  const multiplier = sceneType === 'diagram' ? DIAGRAM_DURATION_MULTIPLIER : 1
+  const visualTypes = ['diagram', 'code', 'math', 'chart']
+  const multiplier = visualTypes.includes(sceneType)
+    ? DIAGRAM_DURATION_MULTIPLIER
+    : 1
   return Math.round(SECTION_BASE_DURATION_FRAMES * durationWeight * multiplier)
 }
 
