@@ -13,20 +13,24 @@ GOLDEN RULES:
 - Only use a visual type when the section's content genuinely calls for it. "text" is always a valid choice. Do NOT force visuals for variety.
 
 SCENE TYPES:
-- "text": A bold, cinematic statement. No visual. Use for intro hook, closing takeaway, or any section that is conceptual/motivational rather than technical. This is the DEFAULT — use it unless a visual clearly adds value.
-- "diagram": Full-screen Mermaid diagram. Use ONLY when the section describes a process, flow, architecture, or relationship between concepts.
-- "code": Syntax-highlighted code block. Use ONLY when the section explains actual code, an algorithm implementation, or API usage. Max 12 lines.
-- "math": LaTeX equation. Use ONLY when the section explains a specific formula, equation, or mathematical relationship.
-- "chart": Data visualization (bar, pie, or comparison). Use ONLY when the section presents specific numeric data, statistics, or quantitative comparisons. NEVER use a chart just to fill a visual slot — the narration must contain actual numbers or data being compared.
+- "text": A bold, cinematic statement. No visual. The DEFAULT for intros, closings, conceptual/motivational content.
+- "math": LaTeX equation. For any formula, equation, theorem, or mathematical relationship. This is the FIRST choice for math/physics/science topics — NOT diagram.
+- "code": Syntax-highlighted code block. For actual code, algorithm implementations, API usage. Max 12 lines.
+- "chart": Data visualization. ONLY when the narration contains real numeric data being compared. Never invent data.
+- "diagram": Mermaid diagram. ONLY for step-by-step processes, system architectures, or entity relationships. This is the LAST resort — never use a diagram when math, code, or text would be more appropriate.
 
-CHOOSING THE RIGHT VISUAL:
-- If the narration doesn't contain concrete data/code/formulas/processes → use "text"
-- Programming topics with actual code shown → "code"
-- Math/physics with a specific equation → "math"
-- Narration with specific numbers being compared → "chart"
-- Processes/flows/architectures → "diagram"
+DECISION TREE — follow this in order for each section:
+1. Does the section contain or reference a formula, equation, or theorem (e.g. Pythagorean theorem, E=mc², quadratic formula, any named law)? → "math"
+2. Does the section contain or reference actual code, pseudocode, or a specific algorithm implementation? → "code"
+3. Does the narration cite specific numbers being compared (e.g. "GDP is 25T vs 18T")? → "chart"
+4. Does the section describe a multi-step process, pipeline, or system architecture with distinct connected components? → "diagram"
+5. Otherwise → "text"
+
+CRITICAL: A "diagram" is NOT a good way to explain a theorem, equation, or concept. Mermaid flowcharts with boxes like "a² + b² = c²" are ugly and wrong. Use "math" for that.
 
 DIAGRAMS:
+- ONLY use for genuine multi-step processes, system architectures, or entity-relationship maps.
+- NEVER use a diagram to display an equation, theorem, or concept that should be "math" or "text".
 - Use "flowchart" for processes/steps, "sequence" for interactions, "graph" for relationships, "mindmap" for concept overviews.
 - Keep Mermaid syntax simple. Short node labels (max 3 words). No special characters or HTML.
 - Use graph TD or graph LR. Max 8 nodes.
@@ -40,7 +44,8 @@ CODE:
 MATH:
 - Use standard LaTeX. One equation or formula per scene.
 - Keep expressions readable — avoid overly complex nested fractions.
-- Examples: "E = mc^2", "\\int_0^\\infty e^{-x} dx = 1", "\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}"
+- ANY named theorem or law MUST use a "math" scene: Pythagorean theorem → "a^2 + b^2 = c^2", Newton's second law → "F = ma", etc.
+- Examples: "E = mc^2", "a^2 + b^2 = c^2", "\\int_0^\\infty e^{-x} dx = 1", "\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}"
 
 CHARTS:
 - ONLY use when the narration contains real numeric data to visualize. Do NOT invent data or add a chart just for visual flair.
