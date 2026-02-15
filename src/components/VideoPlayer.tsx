@@ -39,8 +39,8 @@ export const VideoPlayer: React.FC<{ data: GenerateResponse }> = ({ data }) => {
   if (isLoading) {
     return (
       <div className="w-full max-w-md mx-auto flex items-center justify-center py-12">
-        <div className="flex items-center gap-3 text-slate-400">
-          <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+        <div className="flex items-center gap-3 text-[#636363]">
+          <div className="w-5 h-5 border-2 border-[#2c80ff] border-t-transparent rounded-full animate-spin" />
           {isRendering ? 'Rendering diagrams...' : 'Processing audio...'}
         </div>
       </div>
@@ -49,7 +49,7 @@ export const VideoPlayer: React.FC<{ data: GenerateResponse }> = ({ data }) => {
 
   if (error) {
     return (
-      <div className="w-full max-w-md mx-auto text-red-400 py-12 text-center">
+      <div className="w-full max-w-md mx-auto text-red-500 py-12 text-center">
         Processing failed: {error}
       </div>
     )
