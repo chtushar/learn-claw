@@ -1,8 +1,14 @@
-import { AbsoluteFill, Audio } from 'remotion'
-import { AnimatedText } from '../components/AnimatedText'
-import { BulletList } from '../components/BulletList'
-import { MarkdownText } from '../components/MarkdownText'
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  interpolate,
+  spring,
+  useVideoConfig,
+} from 'remotion'
+import { Audio } from '@remotion/media'
 import { ProgressBar } from '../components/ProgressBar'
+import { FONT_FAMILY } from '../lib/fonts'
+import { theme } from '../lib/theme'
 import type { ProcessedSection } from '@/lib/processedSchema'
 
 export const SectionScene: React.FC<{
@@ -11,56 +17,102 @@ export const SectionScene: React.FC<{
   total: number
   audioSrc?: string
 }> = ({ section, index, total, audioSrc }) => {
+  const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
+
+  const emojiScale = spring({
+    frame,
+    fps,
+    config: { damping: 80, stiffness: 200, mass: 0.4 },
+  })
+  const titleOpacity = interpolate(
+    frame,
+    [0.3 * fps, 0.7 * fps],
+    [0, 1],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+  const titleY = interpolate(
+    frame,
+    [0.3 * fps, 0.7 * fps],
+    [40, 0],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+  const narrationOpacity = interpolate(
+    frame,
+    [0.8 * fps, 1.3 * fps],
+    [0, 1],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+  const narrationY = interpolate(
+    frame,
+    [0.8 * fps, 1.3 * fps],
+    [20, 0],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+
   return (
     <AbsoluteFill
       style={{
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%)',
+        backgroundColor: theme.background,
+        fontFamily: FONT_FAMILY,
+        display: 'flex',
+        flexDirection: 'column',
         padding: 48,
-        fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
       {audioSrc && <Audio src={audioSrc} />}
 
       <ProgressBar current={index + 1} total={total} />
 
-      <AnimatedText
-        text={`${section.iconEmoji}  Section ${index + 1}`}
-        delay={0}
+      <div
         style={{
-          fontSize: 20,
-          color: '#6c63ff',
-          fontWeight: 600,
-          marginTop: 32,
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: 32,
         }}
-      />
+      >
+        <div
+          style={{
+            fontSize: 64,
+            transform: `scale(${interpolate(emojiScale, [0, 1], [0, 1])})`,
+          }}
+        >
+          {section.iconEmoji}
+        </div>
 
-      <AnimatedText
-        text={section.title}
-        delay={10}
-        style={{
-          fontSize: 36,
-          color: '#ffffff',
-          fontWeight: 800,
-          marginTop: 12,
-          lineHeight: 1.2,
-        }}
-      />
+        <div
+          style={{
+            opacity: titleOpacity,
+            transform: `translateY(${titleY}px)`,
+            fontSize: 44,
+            fontWeight: 800,
+            color: theme.text,
+            textAlign: 'center',
+            lineHeight: 1.15,
+            maxWidth: '90%',
+          }}
+        >
+          {section.title}
+        </div>
 
-      <BulletList items={section.keyPoints} startDelay={25} />
-
-      <MarkdownText
-        text={section.narration}
-        delay={50}
-        style={{
-          fontSize: 20,
-          color: '#a0a0c0',
-          lineHeight: 1.6,
-          position: 'absolute',
-          bottom: 48,
-          left: 48,
-          right: 48,
-        }}
-      />
+        <div
+          style={{
+            opacity: narrationOpacity,
+            transform: `translateY(${narrationY}px)`,
+            fontSize: 24,
+            color: theme.textMuted,
+            textAlign: 'center',
+            lineHeight: 1.5,
+            maxWidth: '85%',
+            fontWeight: 400,
+          }}
+        >
+          {section.narration}
+        </div>
+      </div>
     </AbsoluteFill>
   )
 }

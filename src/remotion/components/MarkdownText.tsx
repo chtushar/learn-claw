@@ -1,4 +1,5 @@
 import { useCurrentFrame, interpolate } from 'remotion'
+import { theme } from '../lib/theme'
 
 function parseInlineMarkdown(text: string): React.ReactNode[] {
   const parts: React.ReactNode[] = []
@@ -14,14 +15,14 @@ function parseInlineMarkdown(text: string): React.ReactNode[] {
       parts.push(
         <strong
           key={match.index}
-          style={{ color: '#ffffff', fontWeight: 700 }}
+          style={{ color: theme.boldText, fontWeight: 700 }}
         >
           {match[2]}
         </strong>,
       )
     } else if (match[3]) {
       parts.push(
-        <em key={match.index} style={{ color: '#c0c0e0' }}>
+        <em key={match.index} style={{ color: theme.italicText }}>
           {match[3]}
         </em>,
       )
@@ -30,8 +31,8 @@ function parseInlineMarkdown(text: string): React.ReactNode[] {
         <code
           key={match.index}
           style={{
-            backgroundColor: '#1a1a3e',
-            color: '#6c63ff',
+            backgroundColor: theme.codeBg,
+            color: theme.codeText,
             padding: '2px 6px',
             borderRadius: 4,
             fontSize: '0.9em',

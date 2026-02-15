@@ -1,91 +1,113 @@
-import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion'
-import { AnimatedText } from '../components/AnimatedText'
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  interpolate,
+  spring,
+  useVideoConfig,
+} from 'remotion'
+import { FONT_FAMILY } from '../lib/fonts'
+import { theme } from '../lib/theme'
 import type { ProcessedSection } from '@/lib/processedSchema'
 
 export const SummaryScene: React.FC<{
   topic: string
   summary: string
   sections: ProcessedSection[]
-}> = ({ topic, summary, sections }) => {
+}> = ({ topic, summary, sections: _sections }) => {
   const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
 
-  const checkmarkOpacity = interpolate(frame, [60, 75], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
+  const checkScale = spring({
+    frame: Math.max(0, frame - Math.round(1.3 * fps)),
+    fps,
+    config: { damping: 60, stiffness: 200, mass: 0.3 },
   })
+  const topicOpacity = interpolate(
+    frame,
+    [0.2 * fps, 0.7 * fps],
+    [0, 1],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+  const topicY = interpolate(
+    frame,
+    [0.2 * fps, 0.7 * fps],
+    [30, 0],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+  const summaryOpacity = interpolate(
+    frame,
+    [0.7 * fps, 1.2 * fps],
+    [0, 1],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+  const lineWidth = interpolate(
+    frame,
+    [1 * fps, 1.8 * fps],
+    [0, 80],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
 
   return (
     <AbsoluteFill
       style={{
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%)',
+        backgroundColor: theme.background,
+        fontFamily: FONT_FAMILY,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: 48,
-        fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
-      <AnimatedText
-        text="Recap"
-        delay={0}
+      <div
         style={{
-          fontSize: 20,
-          color: '#6c63ff',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: 4,
+          fontSize: 56,
+          transform: `scale(${interpolate(checkScale, [0, 1], [0, 1])})`,
+          marginBottom: 28,
+          color: theme.accent,
         }}
-      />
-
-      <AnimatedText
-        text={topic}
-        delay={8}
-        style={{
-          fontSize: 36,
-          color: '#ffffff',
-          fontWeight: 800,
-          marginTop: 12,
-          lineHeight: 1.2,
-        }}
-      />
-
-      <AnimatedText
-        text={summary}
-        delay={18}
-        style={{
-          fontSize: 20,
-          color: '#a0a0c0',
-          marginTop: 12,
-          lineHeight: 1.5,
-          maxWidth: '95%',
-        }}
-      />
-
-      <div style={{ marginTop: 36 }}>
-        {sections.map((section, i) => (
-          <AnimatedText
-            key={i}
-            text={`${section.iconEmoji}  ${section.title}`}
-            delay={30 + i * 8}
-            style={{
-              fontSize: 22,
-              color: '#c0c0e0',
-              marginBottom: 10,
-              fontWeight: 500,
-            }}
-          />
-        ))}
+      >
+        ✓
       </div>
 
       <div
         style={{
-          opacity: checkmarkOpacity,
-          position: 'absolute',
-          bottom: 48,
-          left: 48,
-          fontSize: 18,
-          color: '#4ade80',
-          fontWeight: 600,
+          opacity: topicOpacity,
+          transform: `translateY(${topicY}px)`,
+          fontSize: 40,
+          fontWeight: 800,
+          color: theme.text,
+          textAlign: 'center',
+          lineHeight: 1.15,
+          maxWidth: '90%',
         }}
       >
-        Learning complete
+        {topic}
+      </div>
+
+      <div
+        style={{
+          width: `${lineWidth}px`,
+          height: 4,
+          backgroundColor: theme.accent,
+          borderRadius: 2,
+          marginTop: 24,
+        }}
+      />
+
+      <div
+        style={{
+          opacity: summaryOpacity,
+          fontSize: 22,
+          color: theme.textMuted,
+          textAlign: 'center',
+          lineHeight: 1.5,
+          maxWidth: '85%',
+          marginTop: 24,
+          fontWeight: 400,
+        }}
+      >
+        {summary}
       </div>
     </AbsoluteFill>
   )

@@ -1,6 +1,7 @@
 import { useCurrentFrame, interpolate } from 'remotion'
 import { useMemo } from 'react'
 import { processMermaidSvg } from '../lib/svgUtils'
+import { theme } from '../lib/theme'
 
 export const MermaidDiagram: React.FC<{
   svgString: string
@@ -62,7 +63,7 @@ export const MermaidDiagram: React.FC<{
           style={{
             opacity: captionOpacity,
             fontSize: 18,
-            color: '#8b8ba7',
+            color: theme.captionText,
             marginTop: 16,
             fontStyle: 'italic',
             textAlign: 'center',

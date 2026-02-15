@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 
 const messages = [
-  'Analyzing your topic...',
-  'Breaking it into sections...',
-  'Writing explanations...',
-  'Generating diagrams...',
-  'Creating voiceover...',
+  'Writing the script...',
+  'Planning visual scenes...',
+  'Generating voiceover...',
+  'Rendering diagrams...',
   'Almost there...',
 ]
 

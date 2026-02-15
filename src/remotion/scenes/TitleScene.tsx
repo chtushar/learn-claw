@@ -5,55 +5,92 @@ import {
   spring,
   useVideoConfig,
 } from 'remotion'
+import { FONT_FAMILY } from '../lib/fonts'
+import { theme } from '../lib/theme'
 
 export const TitleScene: React.FC<{
   topic: string
   sectionCount: number
-}> = ({ topic, sectionCount }) => {
+}> = ({ topic, sectionCount: _sectionCount }) => {
   const frame = useCurrentFrame()
   const { fps } = useVideoConfig()
 
-  const titleOpacity = interpolate(frame, [0, 20], [0, 1], {
+  const titleScale = spring({
+    frame,
+    fps,
+    config: { damping: 100, stiffness: 200, mass: 0.5 },
+  })
+  const titleOpacity = interpolate(frame, [0, 0.5 * fps], [0, 1], {
     extrapolateRight: 'clamp',
   })
-  const titleY = spring({ frame, fps, config: { damping: 200 } })
-  const subtitleOpacity = interpolate(frame, [15, 35], [0, 1], {
-    extrapolateRight: 'clamp',
-  })
+  const lineWidth = interpolate(
+    frame,
+    [0.7 * fps, 1.7 * fps],
+    [0, 100],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+  const subtitleOpacity = interpolate(
+    frame,
+    [1.2 * fps, 1.8 * fps],
+    [0, 1],
+    { extrapolateRight: 'clamp' },
+  )
+  const subtitleY = interpolate(
+    frame,
+    [1.2 * fps, 1.8 * fps],
+    [30, 0],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
 
   return (
     <AbsoluteFill
       style={{
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%)',
+        backgroundColor: theme.background,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 48,
-        fontFamily: 'Inter, system-ui, sans-serif',
+        fontFamily: FONT_FAMILY,
       }}
     >
       <div
         style={{
           opacity: titleOpacity,
-          transform: `translateY(${interpolate(titleY, [0, 1], [40, 0])}px)`,
-          fontSize: 48,
+          transform: `scale(${interpolate(titleScale, [0, 1], [0.8, 1])})`,
+          fontSize: 52,
           fontWeight: 800,
-          color: '#ffffff',
+          color: theme.accentDark,
           textAlign: 'center',
           maxWidth: '90%',
-          lineHeight: 1.2,
+          lineHeight: 1.15,
+          letterSpacing: -1,
         }}
       >
         {topic}
       </div>
+
+      <div
+        style={{
+          width: `${lineWidth}px`,
+          height: 4,
+          backgroundColor: theme.accent,
+          borderRadius: 2,
+          marginTop: 24,
+        }}
+      />
+
       <div
         style={{
           opacity: subtitleOpacity,
-          fontSize: 22,
-          color: '#8b8ba7',
-          marginTop: 20,
+          transform: `translateY(${subtitleY}px)`,
+          fontSize: 18,
+          color: theme.accentMid,
+          marginTop: 16,
+          fontWeight: 600,
+          letterSpacing: 3,
+          textTransform: 'uppercase',
         }}
       >
-        {sectionCount} sections
+        explained
       </div>
     </AbsoluteFill>
   )

@@ -1,9 +1,14 @@
-import { AbsoluteFill, Audio } from 'remotion'
-import { AnimatedText } from '../components/AnimatedText'
-import { BulletList } from '../components/BulletList'
+import {
+  AbsoluteFill,
+  useCurrentFrame,
+  interpolate,
+  useVideoConfig,
+} from 'remotion'
+import { Audio } from '@remotion/media'
 import { MermaidDiagram } from '../components/MermaidDiagram'
-import { MarkdownText } from '../components/MarkdownText'
 import { ProgressBar } from '../components/ProgressBar'
+import { FONT_FAMILY } from '../lib/fonts'
+import { theme } from '../lib/theme'
 import type { ProcessedSection } from '@/lib/processedSchema'
 
 export const SplitScene: React.FC<{
@@ -12,12 +17,28 @@ export const SplitScene: React.FC<{
   total: number
   audioSrc?: string
 }> = ({ section, index, total, audioSrc }) => {
+  const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
+
+  const titleOpacity = interpolate(
+    frame,
+    [0, 0.5 * fps],
+    [0, 1],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+  const narrationOpacity = interpolate(
+    frame,
+    [1 * fps, 1.5 * fps],
+    [0, 1],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  )
+
   return (
     <AbsoluteFill
       style={{
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%)',
-        padding: 48,
-        fontFamily: 'Inter, system-ui, sans-serif',
+        backgroundColor: theme.background,
+        padding: '36px 32px',
+        fontFamily: FONT_FAMILY,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -26,57 +47,59 @@ export const SplitScene: React.FC<{
 
       <ProgressBar current={index + 1} total={total} />
 
-      <AnimatedText
-        text={`${section.iconEmoji}  ${section.title}`}
-        delay={0}
-        style={{
-          fontSize: 30,
-          color: '#ffffff',
-          fontWeight: 700,
-          marginTop: 20,
-          marginBottom: 20,
-        }}
-      />
-
-      {/* Vertical stack: diagram on top, text on bottom */}
       <div
         style={{
-          flex: '0 0 50%',
+          opacity: titleOpacity,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: 12,
+          marginTop: 16,
+          marginBottom: 12,
         }}
       >
-        {section.processedDiagram && (
-          <MermaidDiagram
-            svgString={section.processedDiagram.svgString}
-            delay={15}
-            caption={section.processedDiagram.caption}
-            maxWidth={900}
-            maxHeight={600}
-          />
-        )}
+        <span style={{ fontSize: 28 }}>{section.iconEmoji}</span>
+        <span
+          style={{
+            fontSize: 24,
+            fontWeight: 700,
+            color: theme.text,
+          }}
+        >
+          {section.title}
+        </span>
       </div>
 
       <div
         style={{
           flex: 1,
           display: 'flex',
-          flexDirection: 'column',
+          alignItems: 'center',
           justifyContent: 'center',
+          minHeight: 0,
         }}
       >
-        <BulletList items={section.keyPoints} startDelay={25} />
-        <MarkdownText
-          text={section.narration}
-          delay={50}
-          style={{
-            fontSize: 18,
-            color: '#a0a0c0',
-            lineHeight: 1.6,
-            marginTop: 20,
-          }}
-        />
+        {section.processedDiagram && (
+          <MermaidDiagram
+            svgString={section.processedDiagram.svgString}
+            delay={Math.round(0.3 * fps)}
+            maxWidth={980}
+            maxHeight={1200}
+          />
+        )}
+      </div>
+
+      <div
+        style={{
+          opacity: narrationOpacity,
+          fontSize: 18,
+          color: theme.textMuted,
+          textAlign: 'center',
+          lineHeight: 1.4,
+          paddingTop: 12,
+        }}
+      >
+        {section.narration}
       </div>
     </AbsoluteFill>
   )

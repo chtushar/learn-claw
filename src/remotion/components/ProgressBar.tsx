@@ -1,20 +1,26 @@
-import { useCurrentFrame, interpolate } from 'remotion'
+import { useCurrentFrame, interpolate, useVideoConfig } from 'remotion'
+import { theme } from '../lib/theme'
 
 export const ProgressBar: React.FC<{
   current: number
   total: number
 }> = ({ current, total }) => {
   const frame = useCurrentFrame()
-  const width = interpolate(frame, [0, 20], [0, (current / total) * 100], {
-    extrapolateRight: 'clamp',
-  })
+  const { fps } = useVideoConfig()
+
+  const width = interpolate(
+    frame,
+    [0, 0.7 * fps],
+    [0, (current / total) * 100],
+    { extrapolateRight: 'clamp' },
+  )
 
   return (
     <div
       style={{
         width: '100%',
         height: 4,
-        backgroundColor: '#1a1a3e',
+        backgroundColor: theme.progressTrack,
         borderRadius: 2,
       }}
     >
@@ -22,7 +28,7 @@ export const ProgressBar: React.FC<{
         style={{
           width: `${width}%`,
           height: '100%',
-          backgroundColor: '#6c63ff',
+          backgroundColor: theme.progressFill,
           borderRadius: 2,
         }}
       />
